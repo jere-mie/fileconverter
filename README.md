@@ -8,7 +8,7 @@ A browser-based file converter powered by WebAssembly. Convert video, audio, ima
 ## Features
 
 - **Local file processing** - selected files are processed in your browser and are not uploaded to the app's server
-- **25+ conversion formats** across video, audio, image, and document
+- **75+ conversion formats** across video, audio, image, document, and data
 - **Bulk conversion** - drop multiple files at once, download as ZIP
 - **Runs locally after load** - once the page assets are loaded, conversions happen inside the current browser tab
 - **No accounts, no tracking, no telemetry**
@@ -17,10 +17,11 @@ A browser-based file converter powered by WebAssembly. Convert video, audio, ima
 
 | Category | Conversions |
 |----------|-------------|
-| Video    | MP4 → MP3, MP4 → WebM, MP4 → GIF, AVI → MP4, MOV → MP4, MKV → MP4, WebM → MP4 |
-| Audio    | WAV → MP3, MP3 → WAV, FLAC → MP3, OGG → MP3, MP3 → OGG |
-| Image    | PNG ↔ JPG, PNG ↔ WebP, JPG ↔ WebP |
-| Document | MD ↔ HTML, MD → TXT, HTML → MD, HTML → TXT, DOCX → HTML, DOCX → MD, DOCX → TXT |
+| Video    | MP4 → MP3/WebM/GIF/MOV, AVI → MP4/GIF, MOV → MP4/MP3/WebM/GIF, MKV → MP4/MP3/WebM, WebM → MP4/MP3/GIF |
+| Audio    | WAV → MP3/OGG/FLAC, MP3 → WAV/OGG/FLAC, M4A → MP3/WAV, AAC → MP3, FLAC → MP3/M4A/WAV, OGG → MP3/WAV |
+| Image    | PNG/JPG/WebP/SVG → ICO, PNG ↔ JPG/WebP/AVIF, JPG ↔ WebP/AVIF, WebP ↔ PNG/JPG, HEIC/HEIF → JPG/PNG/WebP, AVIF → JPG/PNG, SVG → PNG/JPG |
+| Document | MD → HTML/TXT/PDF, HTML → MD/TXT/PDF, DOCX → HTML/MD/PDF/TXT, PDF → PNG/JPG/TXT |
+| Data     | CSV → JSON/YAML, JSON → CSV/XML/YAML, XLSX → CSV/JSON, YAML → JSON, XML → JSON/YAML |
 
 ## How It Works
 
@@ -31,13 +32,17 @@ A browser-based file converter powered by WebAssembly. Convert video, audio, ima
 
 ## Tech Stack
 
-- [Astro](https://astro.build) - static site generation with `client:visible` islands for lazy hydration
+- [Astro](https://astro.build) - static site generation with `client:load` islands
 - [React](https://react.dev) - hydrated interactive components only
 - [Tailwind CSS v4](https://tailwindcss.com) - utility-first styling
 - [@ffmpeg/ffmpeg](https://ffmpegwasm.netlify.app) - FFmpeg compiled to WebAssembly for video/audio
-- [marked](https://marked.js.org) + [turndown](https://github.com/mixmark-io/turndown) + [mammoth](https://github.com/mwilliamson/mammoth.js) - lightweight document conversion
+- [marked](https://marked.js.org) + [turndown](https://github.com/mixmark-io/turndown) + [mammoth](https://github.com/mwilliamson/mammoth.js) - document conversion (MD, HTML, DOCX)
+- [jsPDF](https://github.com/parallax/jsPDF) + [pdfjs-dist](https://github.com/mozilla/pdf.js) - PDF generation and rendering
+- [SheetJS (xlsx)](https://sheetjs.com) - XLSX parsing (vendored tarball)
+- [js-yaml](https://github.com/nodeca/js-yaml) + [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser) - YAML and XML data conversion
+- [heic2any](https://github.com/alexcorvi/heic2any) - HEIC/HEIF decoding
 - [JSZip](https://stuk.github.io/jszip) - client-side ZIP generation
-- Deployed on [Cloudflare Pages](https://pages.cloudflare.com)
+- Deployed on [GitHub Pages](https://pages.github.com)
 
 ## Development
 
@@ -57,7 +62,7 @@ npm run preview
 
 The project vendors the SheetJS `xlsx` tarball at `vendor/xlsx-0.20.3.tgz` because the public npm registry package is stale. If you need to update it, replace the tarball and update the dependency entry in `package.json`.
 
-> **Note:** The dev server requires `Cross-Origin-Embedder-Policy` and `Cross-Origin-Opener-Policy` headers for `SharedArrayBuffer` (used by FFmpeg WASM). These are set automatically via `astro.config.mjs`. For production, they are set in `public/_headers` (Cloudflare Pages).
+> **Note:** The dev server requires `Cross-Origin-Embedder-Policy` and `Cross-Origin-Opener-Policy` headers for `SharedArrayBuffer` (used by FFmpeg WASM). These are set automatically via `astro.config.mjs` in development. In production on GitHub Pages (which cannot set custom response headers), `public/coi-serviceworker.js` injects them via a service worker.
 
 ## Deployment
 
@@ -70,16 +75,18 @@ The project vendors the SheetJS `xlsx` tarball at `vendor/xlsx-0.20.3.tgz` becau
 
 ```
 src/
-├── data/converters.ts          # All 25 conversion pairs - single source of truth
+├── data/converters.ts          # All 75 conversion pairs - single source of truth
 ├── engines/
-│   ├── imageEngine.ts          # Canvas API image conversion
-│   └── documentEngine.ts       # marked / turndown / mammoth (all lazy-loaded)
+│   ├── imageEngine.ts          # Canvas API + heic2any image conversion
+│   ├── documentEngine.ts       # marked / turndown / mammoth (all lazy-loaded)
+│   ├── pdfEngine.ts            # jsPDF (generation) + pdfjs-dist (rendering)
+│   └── dataEngine.ts           # SheetJS / js-yaml / fast-xml-parser
 ├── workers/ffmpeg.worker.ts    # FFmpeg WASM in a Web Worker
 ├── components/islands/
 │   └── BulkConverterIsland.tsx # Main converter UI (queue, bulk, ZIP)
 └── pages/
     ├── index.astro             # Landing page
-    └── convert/[from]-to-[to].astro  # 25 SEO converter pages
+    └── convert/[from]-to-[to].astro  # 75 SEO converter pages
 ```
 
 ## License
