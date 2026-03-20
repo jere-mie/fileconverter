@@ -1,0 +1,233 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BulkConverterIsland from '../components/islands/BulkConverterIsland';
+import { converters, categoryLabels, categoryIcons, type Category } from '../data/converters';
+
+const categories: Category[] = ['video', 'audio', 'image', 'document'];
+---
+
+<Layout
+  title="File Converter - Free, Private, Browser-Based"
+  description="Convert video, audio, and images in your browser. Files are processed locally and not uploaded to any server. Powered by WebAssembly."
+>
+  <!-- ===== NAV ===== -->
+  <nav style="position:sticky;top:0;z-index:100;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(12,11,9,0.85);border-bottom:1px solid var(--border);">
+    <div style="max-width:1100px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;">
+      <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);">
+        <div style="width:28px;height:28px;background:var(--accent);border-radius:5px;display:flex;align-items:center;justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C0B09" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+          </svg>
+        </div>
+        <span style="font-family:var(--font-display);font-weight:600;font-size:1.15rem;letter-spacing:0.02em;">File Converter</span>
+      </a>
+      <div class="hide-on-mobile" style="display:flex;align-items:center;gap:6px;">
+        <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;">
+          {converters.length} formats
+        </span>
+        <span style="width:4px;height:4px;border-radius:50%;background:var(--accent);display:inline-block;"></span>
+        <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;">
+          zero uploads
+        </span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <header style="position:relative;overflow:hidden;border-bottom:1px solid var(--border);">
+    <!-- Grid background -->
+    <div style="position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;opacity:0.35;pointer-events:none;"></div>
+    <!-- Radial glow -->
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(232,145,45,0.07) 0%,transparent 70%);pointer-events:none;"></div>
+
+    <div class="hero-content">
+      <!-- Eyebrow label -->
+      <div class="animate-fade-up" style="display:inline-flex;align-items:center;gap:8px;margin-bottom:28px;padding:5px 12px;background:var(--elevated);border:1px solid var(--border);border-radius:100px;">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);"></span>
+        <span style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">
+          Client-side · WebAssembly · No server
+        </span>
+      </div>
+
+      <!-- Headline -->
+      <h1
+        class="animate-fade-up stagger-1"
+        style="font-family:var(--font-display);font-size:clamp(3.5rem,9vw,7.5rem);font-weight:400;font-style:italic;line-height:1.0;letter-spacing:-0.02em;color:var(--text);margin-bottom:24px;"
+      >
+        Convert<br />
+        <span style="color:var(--accent);">anything.</span>
+      </h1>
+
+      <!-- Subheading -->
+      <p
+        class="animate-fade-up stagger-2"
+        style="font-size:1.05rem;color:var(--muted);max-width:480px;line-height:1.7;margin-bottom:40px;"
+      >
+        Video, audio, image, and document conversion that runs entirely in your browser.
+        Your files are processed locally and are not uploaded to any server.
+      </p>
+
+      <!-- Stats row -->
+      <div class="animate-fade-up stagger-3" style="display:flex;flex-wrap:wrap;gap:12px;">
+        {[
+          { value: converters.length.toString(), label: 'Conversions' },
+          { value: '0',  label: 'File bytes uploaded' },
+          { value: '∞',  label: 'File size limit' },
+          { value: '100%', label: 'Local processing' },
+        ].map((stat) => (
+          <div style="padding:10px 18px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-align:center;">
+            <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:500;color:var(--accent);line-height:1;">{stat.value}</div>
+            <div style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-top:4px;">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== QUICK CONVERT ===== -->
+  <section style="border-bottom:1px solid var(--border);background:var(--surface);">
+    <div style="max-width:760px;margin:0 auto;padding:56px 24px;">
+      <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:10px;">
+        <p style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);">Quick Convert</p>
+        <span style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);">drop any file · format detected automatically · bulk supported</span>
+      </div>
+      <h2
+        class="animate-fade-up"
+        style="font-family:var(--font-display);font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:400;font-style:italic;color:var(--text);margin-bottom:28px;line-height:1.1;"
+      >
+        Convert right here, right now.
+      </h2>
+      <BulkConverterIsland client:load />
+    </div>
+  </section>
+
+  <!-- ===== CONVERTERS GRID ===== -->
+  <main style="max-width:1100px;margin:0 auto;padding:56px 24px 80px;">
+
+    <!-- Category tabs (JS-driven) -->
+    <div id="category-tabs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:40px;">
+      <button
+        class="tab-btn active-tab"
+        data-cat="all"
+        style="font-family:var(--font-sans);font-size:0.82rem;font-weight:600;padding:7px 16px;border-radius:6px;border:1px solid var(--accent);background:rgba(232,145,45,0.1);color:var(--accent);cursor:pointer;transition:all 0.2s;min-height:36px;"
+      >
+        All
+      </button>
+      {categories.map((cat) => (
+        <button
+          class="tab-btn"
+          data-cat={cat}
+          style="font-family:var(--font-sans);font-size:0.82rem;font-weight:500;padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.2s;min-height:36px;"
+        >
+          {categoryIcons[cat]}&nbsp;&nbsp;{categoryLabels[cat]}
+        </button>
+      ))}
+    </div>
+
+    <!-- Cards container -->
+    <div id="converters-grid" class="converters-grid">
+      {converters.map((c, i) => (
+        <a
+          href={`/convert/${c.from}-to-${c.to}`}
+          class={`converter-card animate-fade-up stagger-${Math.min((i % 6) + 1, 6)}`}
+          data-category={c.category}
+        >
+          <!-- Format labels -->
+          <span class="format-badge">.{c.from}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+          <span class="format-badge">.{c.to}</span>
+
+          <!-- Category chip -->
+          <div style="margin-left:auto;">
+            <span style={`font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);`}>
+              {c.category === 'document' ? 'doc' : c.category}
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </main>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section style="border-top:1px solid var(--border);background:var(--surface);">
+    <div style="max-width:1100px;margin:0 auto;padding:64px 24px;">
+      <p style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">How it works</p>
+      <h2 style="font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:400;font-style:italic;color:var(--text);margin-bottom:48px;line-height:1.15;">
+        Your machine does the work.
+      </h2>
+
+      <div class="steps-grid">
+        {[
+          { n: '01', title: 'Drop your file', body: 'Drag and drop onto the converter, or click to browse. No size limits - your RAM is the only constraint.' },
+          { n: '02', title: 'Engine loads', body: 'The converter app and its WebAssembly tools load into your browser tab. No plugins, no installs.' },
+          { n: '03', title: 'Conversion runs', body: 'Processing happens locally at native speed. Progress is reported in real time.' },
+          { n: '04', title: 'Download', body: 'Your converted file is handed back to you immediately. We do not upload your files to any server.' },
+        ].map((step) => (
+          <div>
+            <div style="font-family:var(--font-display);font-size:2.2rem;font-style:italic;color:var(--faint);margin-bottom:12px;line-height:1;">{step.n}</div>
+            <h3 style="font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:8px;">{step.title}</h3>
+            <p style="font-size:0.82rem;color:var(--muted);line-height:1.65;">{step.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer style="border-top:1px solid var(--border);padding:28px 24px;">
+    <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+      <span style="font-family:var(--font-display);font-style:italic;font-size:1rem;color:var(--muted);">File Converter</span>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <p style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.06em;color:var(--muted);margin:0;">
+          Files stay in your browser. No file uploads. No telemetry.
+        </p>
+        <span style="color:var(--dim);">·</span>
+        <a
+          href="https://github.com/jere-mie/fileconverter"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.06em;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color 0.2s;"
+          onmouseover="this.style.color='var(--text)'"
+          onmouseout="this.style.color='var(--muted)'"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          GitHub
+        </a>
+        <span style="color:var(--dim);">·</span>
+        <span style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.06em;color:var(--muted);">MIT License</span>
+      </div>
+    </div>
+  </footer>
+</Layout>
+
+<!-- Tab filter script -->
+<script is:inline>
+  var tabs = document.querySelectorAll('.tab-btn');
+  var cards = document.querySelectorAll('[data-category]');
+
+  function setActiveTab(cat) {
+    tabs.forEach(function(btn) {
+      var isActive = btn.dataset.cat === cat;
+      btn.style.borderColor = isActive ? 'var(--accent)' : 'var(--border)';
+      btn.style.background = isActive ? 'rgba(232,145,45,0.1)' : 'transparent';
+      btn.style.color = isActive ? 'var(--accent)' : 'var(--muted)';
+    });
+
+    cards.forEach(function(card) {
+      var show = cat === 'all' || card.dataset.category === cat;
+      card.style.display = show ? 'flex' : 'none';
+    });
+  }
+
+  tabs.forEach(function(btn) {
+    btn.addEventListener('click', function() { setActiveTab(btn.dataset.cat || 'all'); });
+  });
+</script>

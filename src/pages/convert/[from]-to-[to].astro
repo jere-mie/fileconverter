@@ -1,0 +1,202 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BulkConverterIsland from '../../components/islands/BulkConverterIsland';
+import { converters, getConverter, categoryLabels } from '../../data/converters';
+
+export function getStaticPaths() {
+  return converters.map(({ from, to }) => ({ params: { from, to } }));
+}
+
+const { from, to } = Astro.params;
+const converter = getConverter(from, to);
+
+if (!converter) {
+  return Astro.redirect('/');
+}
+
+const FROM = from.toUpperCase();
+const TO   = to.toUpperCase();
+const title       = `Convert ${FROM} to ${TO} Online - 100% Private & Fast`;
+const description = `Free, browser-based ${FROM} to ${TO} converter. Files are processed locally in your browser and not uploaded to any server.`;
+const pageUrl = new URL(`/convert/${from}-to-${to}/`, Astro.site ?? 'https://fileconverter.zxcv.fyi').toString();
+
+// Cross-site plugs
+const plugs: { label: string; url: string; desc: string }[] = [];
+if (converter.category === 'image') {
+  plugs.push({ label: 'imgtools.zxcv.fyi', url: 'https://imgtools.zxcv.fyi', desc: 'More image tools - resize, crop, compress, and optimise images online.' });
+}
+if (from === 'pdf' || to === 'pdf' || converter.engine === 'pdf') {
+  plugs.push({ label: 'pdftools.zxcv.fyi', url: 'https://pdftools.zxcv.fyi', desc: 'More PDF tools - merge, split, compress, and more!' });
+}
+if (from === 'ico' || to === 'ico') {
+  plugs.push({ label: 'seo.zxcv.fyi', url: 'https://seo.zxcv.fyi', desc: 'SEO & favicon tools - generate icons and meta tags for your website.' });
+}
+if (from === 'md' || to === 'md') {
+  plugs.push({ label: 'mdbin.zxcv.fyi', url: 'https://mdbin.zxcv.fyi', desc: 'Share markdown instantly - an anonymous pastebin for Markdown files.' });
+}
+
+const howToSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: `How to Convert ${FROM} to ${TO} Online`,
+  url: pageUrl,
+  mainEntityOfPage: pageUrl,
+  description,
+  step: [
+    { '@type': 'HowToStep', name: 'Select your file', text: `Drag and drop your .${from} file onto the converter, or click to browse.` },
+    { '@type': 'HowToStep', name: 'Conversion runs locally', text: `The WebAssembly engine processes your file entirely inside your browser tab.` },
+    { '@type': 'HowToStep', name: 'Download the result',  text: `Click the Download button to save your converted .${to} file.` },
+  ],
+});
+---
+
+<Layout title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={howToSchema} />
+  </Fragment>
+
+  <!-- NAV -->
+  <nav style="position:sticky;top:0;z-index:100;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(12,11,9,0.85);border-bottom:1px solid var(--border);">
+    <div style="max-width:900px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;gap:12px;">
+      <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--muted);font-size:0.82rem;transition:color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        All converters
+      </a>
+      <span style="color:var(--dim);">/</span>
+      <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--muted);">{from}-to-{to}</span>
+    </div>
+  </nav>
+
+  <main class="page-main">
+
+    <!-- Page header -->
+    <div style="margin-bottom:40px;border-bottom:1px solid var(--border);padding-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <span style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:rgba(232,145,45,0.08);border:1px solid rgba(232,145,45,0.2);padding:3px 10px;border-radius:100px;">
+          {categoryLabels[converter.category]}
+        </span>
+        <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);">
+          {converter.engine === 'ffmpeg'
+            ? 'FFmpeg WASM'
+            : converter.engine === 'document'
+              ? 'Document Engine'
+              : converter.engine === 'pdf'
+                ? 'PDF Engine'
+                : converter.engine === 'data'
+                  ? 'Data Engine'
+                  : 'Canvas API'}
+        </span>
+      </div>
+
+      <h1
+        style="font-family:var(--font-display);font-size:clamp(2rem,5vw,3.5rem);font-weight:400;font-style:italic;color:var(--text);line-height:1.1;margin-bottom:12px;"
+      >
+        Convert <span class="format-badge" style="font-family:var(--font-display);font-size:inherit;font-style:normal;vertical-align:baseline;padding:0 0;background:none;border:none;color:var(--accent);">{FROM}</span>
+        to <span class="format-badge" style="font-family:var(--font-display);font-size:inherit;font-style:normal;vertical-align:baseline;padding:0 0;background:none;border:none;color:var(--text);">{TO}</span>
+      </h1>
+
+      <p style="color:var(--muted);font-size:0.9rem;max-width:520px;line-height:1.7;">
+        {description}
+      </p>
+    </div>
+
+    <!-- Converter island -->
+    <BulkConverterIsland
+      client:load
+      from={from}
+      to={to}
+      engine={converter.engine}
+      mimeIn={converter.mimeIn}
+    />
+
+    <!-- How it works (SEO content) -->
+    <section style="margin-top:64px;padding-top:40px;border-top:1px solid var(--border);">
+      <p style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">How it works</p>
+      <h2 style="font-family:var(--font-display);font-size:1.8rem;font-weight:400;font-style:italic;color:var(--text);margin-bottom:32px;">
+        Three steps to convert {FROM} to {TO}
+      </h2>
+
+      <ol class="steps-grid-sm">
+        {[
+          { n: '01', title: `Drop your .${from} file`, body: 'Drag and drop onto the tool above, or click to open the file picker.' },
+          { n: '02', title: 'Browser converts it',     body: `The ${converter.engine === 'ffmpeg' ? 'FFmpeg WebAssembly' : converter.engine === 'document' ? 'document conversion' : 'Canvas API'} engine runs locally in your browser tab.` },
+          { n: '03', title: `Download .${to}`,          body: 'Instantly grab your converted file. The original is never modified.' },
+        ].map((step) => (
+          <li style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;">
+            <div style="font-family:var(--font-display);font-size:1.8rem;font-style:italic;color:var(--border-light);margin-bottom:10px;line-height:1;">{step.n}</div>
+            <h3 style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:6px;">{step.title}</h3>
+            <p style="font-size:0.8rem;color:var(--muted);line-height:1.6;">{step.body}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- FAQ -->
+    <section style="margin-top:48px;">
+      <p style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">FAQ</p>
+      <h2 style="font-family:var(--font-display);font-size:1.8rem;font-weight:400;font-style:italic;color:var(--text);margin-bottom:28px;">
+        Common questions
+      </h2>
+
+      <div style="display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+        {[
+          { q: `Is this ${FROM} to ${TO} converter really free?`,   a: 'Yes, completely free with no sign-up required. Run it as many times as you like.' },
+          { q: 'Are my files safe?',                                  a: 'Your file is processed locally in your browser tab and is not uploaded to any server.' },
+          { q: 'What is the maximum file size?',                      a: 'There is no hard limit enforced by the tool - available RAM in your browser tab is the practical ceiling.' },
+          { q: 'Does it work offline?',                               a: 'Once the page and its conversion assets have loaded, conversions run locally in the current tab. Reloading the site still needs network access unless you cache it separately.' },
+        ].map((item) => (
+          <details style="background:var(--surface);padding:0;" class="faq-item">
+            <summary style="padding:16px 20px;cursor:pointer;font-weight:500;font-size:0.875rem;color:var(--text);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;user-select:none;">
+              {item.q}
+              <span style="color:var(--accent);flex-shrink:0;font-size:1rem;">+</span>
+            </summary>
+            <p style="padding:0 20px 16px;color:var(--muted);font-size:0.825rem;line-height:1.7;border-top:1px solid var(--border);padding-top:14px;margin:0;">{item.a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <!-- Cross-site plugs -->
+    {plugs.length > 0 && (
+      <section style="margin-top:48px;padding-top:40px;border-top:1px solid var(--border);">
+        <p style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Also from us</p>
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:400;font-style:italic;color:var(--text);margin-bottom:20px;">Related tools you might find useful</h2>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          {plugs.map((plug) => (
+            <li style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 20px;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;">
+              <a href={plug.url} rel="noopener noreferrer" target="_blank" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--accent);text-decoration:none;white-space:nowrap;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">{plug.label} ↗</a>
+              <span style="font-size:0.82rem;color:var(--muted);line-height:1.5;">{plug.desc}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+  </main>
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid var(--border);padding:24px;">
+    <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <a href="/" style="font-family:var(--font-display);font-style:italic;font-size:1rem;color:var(--muted);text-decoration:none;">← All Converters</a>
+      <p style="font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.06em;color:var(--muted);">
+        No file uploads · No telemetry · WebAssembly-powered
+      </p>
+    </div>
+  </footer>
+</Layout>
+
+<style>
+  .faq-item + .faq-item {
+    border-top: 1px solid var(--border);
+  }
+  details[open] summary span {
+    transform: rotate(45deg);
+  }
+  details summary span {
+    transition: transform 0.2s ease;
+    display: inline-block;
+  }
+</style>

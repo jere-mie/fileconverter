@@ -1,0 +1,47 @@
+{
+  "name": "fileconverter",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/react": "^5.0.1",
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
+    "@fontsource/cormorant-garamond": "^5.2.11",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/plus-jakarta-sans": "^5.2.8",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/js-yaml": "^4.0.9",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "astro": "^6.0.7",
+    "fast-xml-parser": "^5.5.7",
+    "heic2any": "^0.0.4",
+    "html2canvas": "^1.4.1",
+    "js-yaml": "^4.1.1",
+    "jspdf": "^4.2.1",
+    "jszip": "^3.10.1",
+    "mammoth": "^1.12.0",
+    "marked": "^17.0.4",
+    "pdfjs-dist": "^5.5.207",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-dropzone": "^15.0.0",
+    "tailwindcss": "^4.2.2",
+    "turndown": "^7.2.2",
+    "xlsx": "file:vendor/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "@types/jszip": "^3.4.0",
+    "@types/turndown": "^5.0.6"
+  }
+}
