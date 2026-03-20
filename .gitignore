@@ -1,3 +1,7 @@
+skills/
+spec.md
+.tmp-heic
+.vscode/
 # build output
 dist/
 
